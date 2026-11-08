@@ -1,0 +1,29 @@
+# Bu dosyayı repoda .github/workflows/viral.yml olarak konumlandır.
+name: viral-tr
+on:
+  schedule:
+    - cron: "0 */3 * * *"   # 3 saatte bir
+  workflow_dispatch: {}
+permissions:
+  contents: write
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - run: python main.py
+        env:
+          YT_API_KEY: ${{ secrets.YT_API_KEY }}
+          TG_TOKEN: ${{ secrets.TG_TOKEN }}
+          TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
+      - name: Rapor ve veritabanını kaydet
+        run: |
+          git config user.name "viral-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add docs/index.html viral.db
+          git commit -m "güncelleme" || echo "değişiklik yok"
+          git push
